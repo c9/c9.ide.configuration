@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "dialog.error", "ui", "settings", "tabManager", "save", 
         "menus", "preferences.keybindings", "preferences.general",
-        "preferences.project", "c9"
+        "preferences.project", "c9", "commands"
     ];
     main.provides = ["configure"];
     return main;
@@ -10,6 +10,7 @@ define(function(require, exports, module) {
     function main(options, imports, register) {
         var Plugin     = imports.Plugin;
         var settings   = imports.settings;
+        var commands   = imports.commands;
         var save       = imports.save;
         var menus      = imports.menus;
         var tabManager = imports.tabManager;
@@ -47,6 +48,15 @@ define(function(require, exports, module) {
             if (css)
                 ui.insertCss(css, false, cssSession);
             
+            commands.addCommand({
+                name    : "restartc9",
+                group   : "General",
+                bindKey : { mac: "Command-R", win: "Ctrl-R" },
+                exec    : function(){
+                    location.reload();
+                }
+            }, plugin);
+            
             menus.addItemByPath("Cloud9/~", new ui.divider(), 350, plugin);
             menus.addItemByPath("Cloud9/Open Your Project Settings", new ui.item({
                 onclick : editProjectSettings
@@ -65,6 +75,10 @@ define(function(require, exports, module) {
             menus.addItemByPath("Cloud9/Open Your Stylesheet", new ui.item({
                 onclick : editStylesCss
             }), 800, plugin);
+            
+            menus.addItemByPath("Cloud9/Restart Cloud9", new apf.item({
+                command: "restartc9"
+            }), 2000080, plugin);
             
             genprefs.on("edit", function(){
                 editUserSettings(); 
