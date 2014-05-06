@@ -8,23 +8,23 @@ define(function(require, exports, module) {
     return main;
 
     function main(options, imports, register) {
-        var Plugin     = imports.Plugin;
-        var settings   = imports.settings;
-        var commands   = imports.commands;
-        var save       = imports.save;
-        var menus      = imports.menus;
+        var Plugin = imports.Plugin;
+        var settings = imports.settings;
+        var commands = imports.commands;
+        var save = imports.save;
+        var menus = imports.menus;
         var tabManager = imports.tabManager;
-        var ui         = imports.ui;
-        var c9         = imports.c9;
-        var kbprefs    = imports["preferences.keybindings"];
-        var genprefs   = imports["preferences.general"];
-        var prjprefs   = imports["preferences.project"];
-        var showError  = imports["dialog.error"].show;
+        var ui = imports.ui;
+        var c9 = imports.c9;
+        var kbprefs = imports["preferences.keybindings"];
+        var genprefs = imports["preferences.general"];
+        var prjprefs = imports["preferences.project"];
+        var showError = imports["dialog.error"].show;
         
         /***** Initialization *****/
         
         var plugin = new Plugin("Ajax.org", main.consumes);
-        // var emit   = plugin.getEmitter();
+        // var emit = plugin.getEmitter();
         
         var cssSession = new Plugin("Ajax.org", main.consumes);
         var services;
@@ -39,7 +39,7 @@ define(function(require, exports, module) {
             if (script) {
                 c9.on("ready", function(){
                     try { eval(script); }
-                    catch(e){ showError("Error Executing init.js: ", e.message); }
+                    catch (e){ showError("Error Executing init.js: ", e.message); }
                 });
             }
             
@@ -49,31 +49,31 @@ define(function(require, exports, module) {
                 ui.insertCss(css, false, cssSession);
             
             commands.addCommand({
-                name    : "restartc9",
-                group   : "General",
-                bindKey : { mac: "Command-R", win: "Ctrl-R" },
-                exec    : function(){
+                name: "restartc9",
+                group: "General",
+                bindKey: { mac: "Command-R", win: "Ctrl-R" },
+                exec: function(){
                     location.reload();
                 }
             }, plugin);
             
             menus.addItemByPath("Cloud9/~", new ui.divider(), 350, plugin);
             menus.addItemByPath("Cloud9/Open Your Project Settings", new ui.item({
-                onclick : editProjectSettings
+                onclick: editProjectSettings
             }), 400, plugin);
             menus.addItemByPath("Cloud9/Open Your User Settings", new ui.item({
-                onclick : editUserSettings
+                onclick: editUserSettings
             }), 400, plugin);
             menus.addItemByPath("Cloud9/Open Your Keymap", new ui.item({
-                onclick : function(){
+                onclick: function(){
                     kbprefs.editUserKeys();
                 }
             }), 600, plugin);
             menus.addItemByPath("Cloud9/Open Your Init Script", new ui.item({
-                onclick : editInitJs
+                onclick: editInitJs
             }), 700, plugin);
             menus.addItemByPath("Cloud9/Open Your Stylesheet", new ui.item({
-                onclick : editStylesCss
+                onclick: editStylesCss
             }), 800, plugin);
             
             menus.addItemByPath("Cloud9/Restart Cloud9", new apf.item({
@@ -87,7 +87,7 @@ define(function(require, exports, module) {
                 editProjectSettings();
             })
             
-            save.on("beforeSave", function(e){
+            save.on("beforeSave", function(e) {
                 if (!e.document.meta.config) return;
                 
                 var path = e.document.meta.config;
@@ -112,7 +112,7 @@ define(function(require, exports, module) {
                 }
                 else if (path == settings.paths.project) {
                     try { var project = JSON.parse(e.document.value); }
-                    catch(e) { 
+                    catch (e) { 
                         showError("Syntax Error in Project Settings: " + e.message); 
                         return false;
                     }
@@ -124,7 +124,7 @@ define(function(require, exports, module) {
                 }
                 else if (path == settings.paths.user) {
                     try { var user = JSON.parse(e.document.value); }
-                    catch(e) { 
+                    catch (e) { 
                         showError("Syntax Error in User Settings: " + e.message); 
                         return false;
                     }
@@ -143,17 +143,17 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function openTab(path, value, syntax, defaultValue){
+        function openTab(path, value, syntax, defaultValue) {
             tabManager.open({
-                path       : path,
-                value      : value || defaultValue,
-                active     : true,
-                editorType : "ace",
-                document   : {
-                    ace   : { customSyntax: syntax },
-                    meta  : { config: path, newfile: !value.length, nofs: true }
+                path: path,
+                value: value || defaultValue,
+                active: true,
+                editorType: "ace",
+                document: {
+                    ace: { customSyntax: syntax },
+                    meta: { config: path, newfile: !value.length, nofs: true }
                 }
-            }, function(err, tab){
+            }, function(err, tab) {
                 
             });
         }
@@ -205,22 +205,22 @@ define(function(require, exports, module) {
             /**
              * 
              */
-            editInitJs : editInitJs,
+            editInitJs: editInitJs,
             
             /**
              * 
              */
-            editStylesCss : editStylesCss,
+            editStylesCss: editStylesCss,
             
             /**
              * 
              */
-            editProjectSettings : editProjectSettings,
+            editProjectSettings: editProjectSettings,
             
             /**
              * 
              */
-            editUserSettings : editUserSettings
+            editUserSettings: editUserSettings
         });
         
         register(null, {
