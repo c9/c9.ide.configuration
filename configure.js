@@ -37,7 +37,7 @@ define(function(require, exports, module) {
             // Init Script
             var script = settings.get("user/config/init.js");
             if (script) {
-                c9.on("ready", function(){
+                c9.once("ready", function(){
                     try { eval(script); }
                     catch (e){ showError("Error Executing init.js: ", e.message); }
                 });
