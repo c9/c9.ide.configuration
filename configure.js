@@ -170,11 +170,15 @@ define(function(require, exports, module) {
         }
         
         function editProjectSettings(){
-            var value = JSON.stringify(settings.model.project, 0, "    ");
+            var value = JSON.stringify(settings.model.project, 0, "    ")
+                .replace(/"true"/g, "true")
+                .replace(/"false"/g, "false");
             openTab(settings.paths.project, value, "javascript");
         }
         function editUserSettings(){
-            var value = JSON.stringify(settings.model.user, 0, "    ");
+            var value = JSON.stringify(settings.model.user, 0, "    ")
+                .replace(/"true"/g, "true")
+                .replace(/"false"/g, "false");
             openTab(settings.paths.user, value, "javascript");
         }
         
