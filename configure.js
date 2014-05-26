@@ -129,6 +129,7 @@ define(function(require, exports, module) {
                         return false;
                     }
                     
+                    // @todo doesn't update UI
                     // settings.model.user = user;
                     settings.read({ user: user });
                     settings.save(true);
