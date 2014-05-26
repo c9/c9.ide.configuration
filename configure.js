@@ -23,6 +23,8 @@ define(function(require, exports, module) {
         var prjprefs = imports["preferences.project"];
         var showError = imports["dialog.error"].show;
         
+        var join = require("path").join;
+        
         /***** Initialization *****/
         
         var plugin = new Plugin("Ajax.org", main.consumes);
@@ -146,10 +148,29 @@ define(function(require, exports, module) {
             // Load initial project settings from disk and match against latest from database
             settings.on("read", function(){
                 fs.readFile(settings.paths.project, function(err, data){
+                    if (err) return;
+                    
                     try { var json = JSON.parse(data); }
                     catch(e) { return; }
                     
-                    settings.read({ project: json });
+                    // Do nothing if they are the same
+                    if (JSON.stringify(settings.model.project) == JSON.stringify(json))
+                        return;
+                    
+                    // Compare key/values (assume source has same keys as target)
+                    (function recur(source, target, base){
+                        for (var prop in source) {
+                            if (prop == "json") {
+                                settings.setJson(base, source[prop]);
+                            }
+                            else if (typeof source[prop] == "object") {
+                                recur(source, target, join(base, prop));
+                            }
+                            else if (source[prop] != target[prop]) {
+                                settings.set(join(base, prop), source[prop]);
+                            }
+                        }
+                    })(json, settings.model.project, "");
                 });
             });
             
@@ -158,6 +179,8 @@ define(function(require, exports, module) {
             watcher.on("change", function(e){
                 if (e.path == settings.paths.project) {
                     fs.readFile(e.path, function(err, data){
+                        if (err) return;
+                        
                         try { var json = JSON.parse(data); }
                         catch(e) { return; }
                         
