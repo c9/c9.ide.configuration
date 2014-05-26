@@ -160,7 +160,7 @@ define(function(require, exports, module) {
                     // Compare key/values (assume source has same keys as target)
                     (function recur(source, target, base){
                         for (var prop in source) {
-                            if (prop == "json") {
+                            if (prop == "json()") {
                                 settings.setJson(base, source[prop]);
                             }
                             else if (typeof source[prop] == "object") {
