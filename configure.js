@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "dialog.error", "ui", "settings", "tabManager", "save", 
         "menus", "preferences.keybindings", "preferences.general",
-        "preferences.project", "c9", "commands"
+        "preferences.project", "c9", "commands", "watcher", "fs"
     ];
     main.provides = ["configure"];
     return main;
@@ -13,9 +13,11 @@ define(function(require, exports, module) {
         var commands = imports.commands;
         var save = imports.save;
         var menus = imports.menus;
+        var watcher = imports.watcher;
         var tabManager = imports.tabManager;
         var ui = imports.ui;
         var c9 = imports.c9;
+        var fs = imports.fs;
         var kbprefs = imports["preferences.keybindings"];
         var genprefs = imports["preferences.general"];
         var prjprefs = imports["preferences.project"];
@@ -140,6 +142,29 @@ define(function(require, exports, module) {
                 
                 return false;
             }, plugin);
+            
+            // Load initial project settings from disk and match against latest from database
+            settings.on("read", function(){
+                fs.readFile(settings.paths.project, function(err, data){
+                    try { var json = JSON.parse(data); }
+                    catch(e) { return; }
+                    
+                    settings.read({ project: json });
+                });
+            });
+            
+            // Keep project file consistent with changes on disk
+            watcher.watch(settings.paths.project);
+            watcher.on("change", function(e){
+                if (e.path == settings.paths.project) {
+                    fs.readFile(e.path, function(err, data){
+                        try { var json = JSON.parse(data); }
+                        catch(e) { return; }
+                        
+                        settings.read({ project: json });
+                    });
+                }
+            });
         }
         
         /***** Methods *****/
