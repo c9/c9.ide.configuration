@@ -148,21 +148,13 @@ define(function(require, exports, module) {
             // Load initial project settings from disk and match against latest from database
             var initWatcher;
             settings.on("read", function(){
-                fs.readFile(settings.paths.project, function(err, data){
+                fs.readFile(settings.paths.project, function readHandler(err, data){
                     if (!initWatcher) {
                         // Keep project file consistent with changes on disk
                         watcher.watch(settings.paths.project);
                         watcher.on("change", function(e){
-                            if (e.path == settings.paths.project) {
-                                fs.readFile(e.path, function(err, data){
-                                    if (err) return;
-                                    
-                                    try { var json = JSON.parse(data); }
-                                    catch(e) { return; }
-                                    
-                                    settings.read({ project: json });
-                                });
-                            }
+                            if (e.path == settings.paths.project)
+                                fs.readFile(e.path, readHandler);
                         });
                         initWatcher = true;
                     }
