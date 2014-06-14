@@ -175,7 +175,7 @@ define(function(require, exports, module) {
                                 settings.setJson(base, source[prop]);
                             }
                             else if (typeof source[prop] == "object") {
-                                recur(source, target, join(base, prop));
+                                recur(source[prop], target[prop], join(base, prop));
                             }
                             else if (source[prop] != target[prop]) {
                                 settings.set(join(base, prop), source[prop]);
