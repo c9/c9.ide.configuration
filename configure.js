@@ -181,7 +181,7 @@ define(function(require, exports, module) {
                                 settings.set(join(base, prop), source[prop]);
                             }
                         }
-                    })(json, settings.model.project, "");
+                    })(json, settings.model.project, "project");
                 });
             });
         }
