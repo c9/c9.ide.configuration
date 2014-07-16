@@ -148,17 +148,28 @@ define(function(require, exports, module) {
             // Load initial project settings from disk and match against latest from database
             var initWatcher;
             settings.on("read", function(){
-                fs.readFile(settings.paths.project, function readHandler(err, data){
-                    if (!initWatcher) {
-                        // Keep project file consistent with changes on disk
+                if (initWatcher) return;
+                initWatcher = true;
+                
+                // Keep project file consistent with changes on disk
+                watcher.watch(settings.paths.project);
+                watcher.on("change", function(e){
+                    if (e.path == settings.paths.project)
+                        fs.readFile(e.path, readHandler);
+                });
+                watcher.on("delete", function(e){
+                    if (e.path == settings.paths.project)
                         watcher.watch(settings.paths.project);
-                        watcher.on("change", function(e){
-                            if (e.path == settings.paths.project)
-                                fs.readFile(e.path, readHandler);
+                });
+                watcher.on("failed", function(e){
+                    if (e.path == settings.paths.project) {
+                        setTimeout(function(){
+                            watcher.watch(settings.paths.project); // Retries once after 1s
                         });
-                        initWatcher = true;
                     }
-                    
+                });
+                
+                function readHandler(err, data){
                     if (err) return;
                     
                     try { var json = JSON.parse(data); }
@@ -183,7 +194,10 @@ define(function(require, exports, module) {
                             }
                         }
                     })(json, settings.model.project, "project");
-                });
+                }
+                
+                // At startup read the project settings from disk
+                fs.readFile(settings.paths.project, readHandler);
             });
         }
         
