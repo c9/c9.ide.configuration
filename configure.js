@@ -43,7 +43,11 @@ define(function(require, exports, module) {
             if (script) {
                 c9.once("ready", function(){
                     try { eval(script); }
-                    catch (e){ showError("Error Executing init.js: ", e.message); }
+                    catch (e){ 
+                        setTimeout(function(){
+                            showError("Error Executing init.js: ", e.message);
+                        }, 500);
+                    }
                 });
             }
             
@@ -221,7 +225,7 @@ define(function(require, exports, module) {
         function editInitJs(){
             var script = settings.get("user/config/init.js") || "";
             openTab("~/.c9/init.js", script, "javascript", 
-                "// You can access plugins via the services global variable\n");
+                "// You can access plugins via the 'services' global variable\n/*global services*/\n");
         }
         
         function editStylesCss(){
