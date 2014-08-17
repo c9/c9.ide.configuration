@@ -179,6 +179,8 @@ define(function(require, exports, module) {
                 function readHandler(err, data){
                     if (err) return;
                     
+                    settings.paths.project = projectPath;
+                    
                     try { var json = JSON.parse(data); }
                     catch(e) { return; }
                     
@@ -219,7 +221,7 @@ define(function(require, exports, module) {
                             watcher.unwatch(projectPath);
                         
                         // Set new project path
-                        settings.paths.project = projectPath = mainPath;
+                        projectPath = mainPath;
                         
                         // Watch project path
                         watcher.watch(projectPath);
