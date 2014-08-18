@@ -184,25 +184,7 @@ define(function(require, exports, module) {
                     try { var json = JSON.parse(data); }
                     catch(e) { return; }
                     
-                    // Do nothing if they are the same
-                    if (JSON.stringify(settings.model.project) == JSON.stringify(json))
-                        return;
-                    
-                    // Compare key/values (assume source has same keys as target)
-                    (function recur(source, target, base){
-                        for (var prop in source) {
-                            if (prop == "json()") {
-                                settings.setJson(base, source[prop]);
-                            }
-                            else if (typeof source[prop] == "object") {
-                                if (!target[prop]) target[prop] = {};
-                                recur(source[prop], target[prop], join(base, prop));
-                            }
-                            else if (source[prop] != target[prop]) {
-                                settings.set(join(base, prop), source[prop]);
-                            }
-                        }
-                    })(json, settings.model.project, "project");
+                    settings.update("project", json);
                 }
                 
                 // At startup read the project settings from disk
