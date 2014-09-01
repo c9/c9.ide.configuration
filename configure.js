@@ -2,8 +2,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "dialog.error", "ui", "settings", "tabManager", "save", 
         "menus", "preferences.keybindings", "preferences.general",
-        "preferences.project", "c9", "commands", "watcher", "fs", 
-        "tree.favorites"
+        "preferences.project", "c9", "commands", "watcher", "fs"
     ];
     main.provides = ["configure"];
     return main;
@@ -23,7 +22,6 @@ define(function(require, exports, module) {
         var genprefs = imports["preferences.general"];
         var prjprefs = imports["preferences.project"];
         var showError = imports["dialog.error"].show;
-        var favs = imports["tree.favorites"];
         
         var join = require("path").join;
         
@@ -34,8 +32,6 @@ define(function(require, exports, module) {
         
         var cssSession = new Plugin("Ajax.org", main.consumes);
         var services;
-        
-        var pathFromFavorite = options.pathFromFavorite;
         
         var loaded = false;
         function load() {
@@ -94,10 +90,10 @@ define(function(require, exports, module) {
             
             genprefs.on("edit", function(){
                 editUserSettings(); 
-            });
+            })
             prjprefs.on("edit", function(){
                 editProjectSettings();
-            });
+            })
             
             save.on("beforeSave", function(e) {
                 if (!e.document.meta.config) return;
@@ -154,24 +150,25 @@ define(function(require, exports, module) {
             }, plugin);
             
             // Load initial project settings from disk and match against latest from database
-            var initWatcher, projectPath;
+            var initWatcher;
             settings.on("read", function(){
                 if (initWatcher) return;
                 initWatcher = true;
                 
                 // Keep project file consistent with changes on disk
+                watcher.watch(settings.paths.project);
                 watcher.on("change", function(e){
-                    if (e.path == projectPath)
+                    if (e.path == settings.paths.project)
                         fs.readFile(e.path, readHandler);
                 });
                 watcher.on("delete", function(e){
-                    if (e.path == projectPath)
-                        watcher.watch(projectPath);
+                    if (e.path == settings.paths.project)
+                        watcher.watch(settings.paths.project);
                 });
                 watcher.on("failed", function(e){
-                    if (e.path == projectPath) {
+                    if (e.path == settings.paths.project) {
                         setTimeout(function(){
-                            watcher.watch(projectPath); // Retries once after 1s
+                            watcher.watch(settings.paths.project); // Retries once after 1s
                         });
                     }
                 });
@@ -179,54 +176,32 @@ define(function(require, exports, module) {
                 function readHandler(err, data){
                     if (err) return;
                     
-                    settings.paths.project = projectPath;
-                    
                     try { var json = JSON.parse(data); }
                     catch(e) { return; }
                     
-                    settings.update("project", json);
+                    // Do nothing if they are the same
+                    if (JSON.stringify(settings.model.project) == JSON.stringify(json))
+                        return;
+                    
+                    // Compare key/values (assume source has same keys as target)
+                    (function recur(source, target, base){
+                        for (var prop in source) {
+                            if (prop == "json()") {
+                                settings.setJson(base, source[prop]);
+                            }
+                            else if (typeof source[prop] == "object") {
+                                if (!target[prop]) target[prop] = {};
+                                recur(source[prop], target[prop], join(base, prop));
+                            }
+                            else if (source[prop] != target[prop]) {
+                                settings.set(join(base, prop), source[prop]);
+                            }
+                        }
+                    })(json, settings.model.project, "project");
                 }
                 
                 // At startup read the project settings from disk
-                if (pathFromFavorite) {
-                    var originalPath = settings.paths.project;
-                    
-                    function updateFavPath(){
-                        var mainPath = favs.getFavoritePaths()[0];
-                        if (mainPath) 
-                            mainPath = join(mainPath, ".c9/project.settings");
-                        else 
-                            mainPath = originalPath;
-                        
-                        // Unwatch old project path
-                        if (projectPath)
-                            watcher.unwatch(projectPath);
-                        
-                        // Set new project path
-                        projectPath = mainPath;
-                        
-                        // Watch project path
-                        watcher.watch(projectPath);
-                        
-                        // Read from disk
-                        fs.readFile(mainPath, readHandler);
-                    }
-                    
-                    favs.on("favoriteAdd", updateFavPath);
-                    favs.on("favoriteRemove", updateFavPath);
-                    favs.on("favoriteReorder", updateFavPath);
-                    
-                    updateFavPath();
-                }
-                else {
-                    projectPath = settings.paths.project;
-                    
-                    // Watch project path
-                    watcher.watch(projectPath);
-                    
-                    // Read from disk
-                    fs.readFile(projectPath, readHandler);
-                }
+                fs.readFile(settings.paths.project, readHandler);
             });
         }
         
