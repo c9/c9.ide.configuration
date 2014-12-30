@@ -3,7 +3,7 @@ define(function(require, exports, module) {
         "Plugin", "dialog.error", "ui", "settings", "tabManager", "save", 
         "menus", "preferences.keybindings", "preferences.general",
         "preferences.project", "c9", "commands", "watcher", "fs", 
-        "tree.favorites"
+        "tree.favorites", "preferences"
     ];
     main.provides = ["configure"];
     return main;
@@ -16,6 +16,7 @@ define(function(require, exports, module) {
         var menus = imports.menus;
         var watcher = imports.watcher;
         var tabManager = imports.tabManager;
+        var preferences = imports.preferences;
         var ui = imports.ui;
         var c9 = imports.c9;
         var fs = imports.fs;
@@ -254,17 +255,20 @@ define(function(require, exports, module) {
         }
         
         function editStylesCss(){
+            preferences.hide();
             var css = settings.get("user/config/styles.css") || "";
             openTab("~/.c9/styles.css", css, "css");
         }
         
         function editProjectSettings(){
+            preferences.hide();
             var value = JSON.stringify(settings.model.project, 0, "    ")
                 .replace(/"true"/g, "true")
                 .replace(/"false"/g, "false");
             openTab(settings.paths.project, value, "javascript");
         }
         function editUserSettings(){
+            preferences.hide();
             var value = JSON.stringify(settings.model.user, 0, "    ")
                 .replace(/"true"/g, "true")
                 .replace(/"false"/g, "false");
