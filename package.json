@@ -9,14 +9,12 @@
         "url": "http://github.com/c9/c9.ide.configuration.git"
     },
     "plugins": {
-        "plugin": {
-            "configure": {}
-        }
+        "configure": {}
     },
     "categories": [
         "core"
     ],
     "licenses": [
-        ""
+        "MIT"
     ]
 }
