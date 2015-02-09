@@ -255,20 +255,20 @@ define(function(require, exports, module) {
         }
         
         function editStylesCss(){
-            preferences.hide();
+            // preferences.hide();
             var css = settings.get("user/config/styles.css") || "";
             openTab("~/.c9/styles.css", css, "css");
         }
         
         function editProjectSettings(){
-            preferences.hide();
+            // preferences.hide();
             var value = JSON.stringify(settings.model.project, 0, "    ")
                 .replace(/"true"/g, "true")
                 .replace(/"false"/g, "false");
             openTab(settings.paths.project, value, "javascript");
         }
         function editUserSettings(){
-            preferences.hide();
+            // preferences.hide();
             var value = JSON.stringify(settings.model.user, 0, "    ")
                 .replace(/"true"/g, "true")
                 .replace(/"false"/g, "false");
