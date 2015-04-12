@@ -34,7 +34,7 @@ define(function(require, exports, module) {
         // var emit = plugin.getEmitter();
         
         var cssSession = new Plugin("Ajax.org", main.consumes);
-        var services;
+        var services, initPlugin;
         
         var pathFromFavorite = options.pathFromFavorite;
         
@@ -46,14 +46,7 @@ define(function(require, exports, module) {
             // Init Script
             var script = settings.get("user/config/init.js");
             if (script) {
-                c9.once("ready", function(){
-                    try { eval(script); }
-                    catch (e){ 
-                        setTimeout(function(){
-                            showError("Error Executing init.js: ", e.message);
-                        }, 500);
-                    }
-                });
+                runInitJs(script);
             }
             
             // Init CSS
@@ -251,7 +244,8 @@ define(function(require, exports, module) {
         function editInitJs(){
             var script = settings.get("user/config/init.js") || "";
             openTab("~/.c9/init.js", script, "javascript", 
-                "// You can access plugins via the 'services' global variable\n/*global services*/\n");
+                "// You can access plugins via the 'services' global variable\n" + 
+                "/*global services, plugin*/\n");
         }
         
         function editStylesCss(){
@@ -275,6 +269,24 @@ define(function(require, exports, module) {
             openTab(settings.paths.user, value, "javascript");
         }
         
+        function runInitJs(script) {
+            c9.once("ready", function(){
+                try {
+                    var fn = new Function("services, plugin", script
+                        + "\n//@ sourceURL=config/init.js");
+                    if (initPlugin) initPlugin.unload();
+                    var initPlugin = new app.Plugin("initScript", []);
+                    initPlugin.name = "initScript";
+                    fn(services, initPlugin);
+                }
+                catch (e){ 
+                    setTimeout(function(){
+                        showError("Error Executing init.js: ", e.message);
+                    }, 500);
+                }
+             });
+        }
+        
         /***** Lifecycle *****/
         
         plugin.on("load", function() {
@@ -288,6 +300,7 @@ define(function(require, exports, module) {
         });
         plugin.on("unload", function() {
             loaded = false;
+            if (initPlugin) initPlugin.unload();
         });
         
         /***** Register and define API *****/
