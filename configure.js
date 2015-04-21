@@ -275,11 +275,12 @@ define(function(require, exports, module) {
                     var fn = new Function("services, plugin", script
                         + "\n//@ sourceURL=config/init.js");
                     if (initPlugin) initPlugin.unload();
-                    var initPlugin = new app.Plugin("initScript", []);
+                    var initPlugin = new Plugin("initScript", []);
                     initPlugin.name = "initScript";
                     fn(services, initPlugin);
                 }
-                catch (e){ 
+                catch (e){
+                    console.error(e);
                     setTimeout(function(){
                         showError("Error Executing init.js: ", e.message);
                     }, 500);
