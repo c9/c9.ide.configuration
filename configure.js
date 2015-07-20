@@ -52,7 +52,7 @@ define(function(require, exports, module) {
             // Init CSS
             var css = settings.get("user/config/styles.css");
             if (css)
-                ui.insertCss(css, false, cssSession);
+                insertCss(css, false, cssSession);
             
             commands.addCommand({
                 name: "restartc9",
@@ -114,7 +114,7 @@ define(function(require, exports, module) {
                     settings.setJson("user/config/styles.css", css);
                     
                     cssSession.cleanUp();
-                    ui.insertCss(css, false, cssSession);
+                    insertCss(css, false, cssSession);
                 }
                 else if (path == settings.paths.project) {
                     try { var project = JSON.parse(e.document.value); }
@@ -225,6 +225,23 @@ define(function(require, exports, module) {
         }
         
         /***** Methods *****/
+        
+        function insertCss(css, staticPrefix, plugin) {
+            // we do not use ui.insertCss to make sure user stylesheet is 
+            // appended to the body tag and have highest priority
+            // without this priority of css rules will be different after
+            // saving stylesheet and after reloading cloud9
+            
+            css += "\n/*# sourceURL=~/.c9/styles.css */";
+            var style = document.createElement("style");
+            style.appendChild(document.createTextNode(css));
+            document.body.appendChild(style);
+            
+            // Cleanup
+            plugin.addOther(function(){
+                style.parentNode.removeChild(style);
+            });
+        }
         
         function openTab(path, value, syntax, defaultValue) {
             tabManager.open({
