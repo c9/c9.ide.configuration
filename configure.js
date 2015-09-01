@@ -63,6 +63,11 @@ define(function(require, exports, module) {
                 }
             }, plugin);
             
+            menus.addItemByPath("Cloud9/~", new ui.divider(), 300, plugin);
+            menus.addItemByPath("Cloud9/Go To Your Dashboard", new ui.item({
+                onclick: function() { window.open(options.dashboardUrl); }
+            }), 310, plugin);
+            
             menus.addItemByPath("Cloud9/~", new ui.divider(), 350, plugin);
             menus.addItemByPath("Cloud9/Open Your Project Settings", new ui.item({
                 onclick: editProjectSettings
