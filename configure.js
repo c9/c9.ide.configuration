@@ -3,7 +3,7 @@ define(function(require, exports, module) {
         "Plugin", "dialog.error", "ui", "settings", "tabManager", "save", 
         "menus", "preferences.keybindings", "preferences.general",
         "preferences.project", "c9", "commands", "watcher", "fs", 
-        "tree.favorites", "preferences"
+        "tree.favorites", "preferences", "util"
     ];
     main.provides = ["configure"];
     return main;
@@ -25,6 +25,7 @@ define(function(require, exports, module) {
         var prjprefs = imports["preferences.project"];
         var showError = imports["dialog.error"].show;
         var favs = imports["tree.favorites"];
+        var util = imports.util;
         
         var join = require("path").join;
         
@@ -104,7 +105,7 @@ define(function(require, exports, module) {
                 var path = e.document.meta.config;
                 
                 // Doing save as, it is now a normal document
-                if (e.path != path) {
+                if (e.path != path && e.path != util.normalizePath(path)) {
                     delete e.document.meta.config;
                     delete e.document.meta.nofs;
                     return;
