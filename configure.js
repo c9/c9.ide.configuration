@@ -54,6 +54,11 @@ define(function(require, exports, module) {
             var css = settings.get("user/config/styles.css");
             if (css)
                 insertCss(css, false, cssSession);
+                
+            settings.on("user/config/styles.css",function(css){
+                cssSession.cleanUp();
+                insertCss(css, false, cssSession);
+            });
             
             commands.addCommand({
                 name: "restartc9",
@@ -118,9 +123,6 @@ define(function(require, exports, module) {
                 else if (path == "~/.c9/styles.css") {
                     var css = e.document.value;
                     settings.setJson("user/config/styles.css", css);
-                    
-                    cssSession.cleanUp();
-                    insertCss(css, false, cssSession);
                 }
                 else if (path == settings.paths.project) {
                     try { var project = JSON.parse(e.document.value); }
