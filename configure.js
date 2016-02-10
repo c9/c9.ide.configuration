@@ -68,6 +68,18 @@ define(function(require, exports, module) {
                     location.reload();
                 }
             }, plugin);
+            commands.addCommand({
+                name: "rerunInitScript",
+                group: "General",
+                bindKey: { mac: "Command-Enter", win: "Ctrl-Enter" },
+                isAvailable: function() {
+                    return tabManager.focussedTab && tabManager.focussedTab.path == "~/.c9/init.js";
+                },
+                exec: function() {
+                    var script = settings.get("user/config/init.js");
+                    runInitJs(script);
+                }
+            }, plugin);
             
             menus.addItemByPath("Cloud9/~", new ui.divider(), 300, plugin);
             menus.addItemByPath("Cloud9/Go To Your Dashboard", new ui.item({
@@ -118,7 +130,7 @@ define(function(require, exports, module) {
                 
                 if (path == "~/.c9/init.js") {
                     settings.setJson("user/config/init.js", e.document.value);
-                    showError("Please reload for these changes to take effect.");
+                    showError("Please reload or press '" + commands.getHotkey("rerunInitScript") + "' for these changes to take effect.");
                 }
                 else if (path == "~/.c9/styles.css") {
                     var css = e.document.value;
@@ -188,31 +200,31 @@ define(function(require, exports, module) {
                     
                     settings.update("project", json);
                 }
+                    
+                function updateFavPath(){
+                    var mainPath = favs.getFavoritePaths()[0];
+                    if (mainPath) 
+                        mainPath = join(mainPath, ".c9/project.settings");
+                    else 
+                        mainPath = originalPath;
+                    
+                    // Unwatch old project path
+                    if (projectPath)
+                        watcher.unwatch(projectPath);
+                    
+                    // Set new project path
+                    projectPath = mainPath;
+                    
+                    // Watch project path
+                    watcher.watch(projectPath);
+                    
+                    // Read from disk
+                    fs.readFile(mainPath, readHandler);
+                }
                 
                 // At startup read the project settings from disk
                 if (pathFromFavorite) {
                     var originalPath = settings.paths.project;
-                    
-                    function updateFavPath(){
-                        var mainPath = favs.getFavoritePaths()[0];
-                        if (mainPath) 
-                            mainPath = join(mainPath, ".c9/project.settings");
-                        else 
-                            mainPath = originalPath;
-                        
-                        // Unwatch old project path
-                        if (projectPath)
-                            watcher.unwatch(projectPath);
-                        
-                        // Set new project path
-                        projectPath = mainPath;
-                        
-                        // Watch project path
-                        watcher.watch(projectPath);
-                        
-                        // Read from disk
-                        fs.readFile(mainPath, readHandler);
-                    }
                     
                     favs.on("favoriteAdd", updateFavPath);
                     favs.on("favoriteRemove", updateFavPath);
