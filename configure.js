@@ -105,9 +105,15 @@ define(function(require, exports, module) {
                 onclick: editStylesCss
             }), 800, plugin);
             
-            menus.addItemByPath("Cloud9/Restart Cloud9", new apf.item({
-                command: "restartc9"
-            }), 2000080, plugin);
+            if (!c9.hosted) {
+                menus.addItemByPath("Cloud9/Restart Cloud9", new apf.item({
+                    command: "restartc9"
+                }), 2000080, plugin);
+            } else {
+                menus.addItemByPath("Cloud9/Restart Workspace", new apf.item({
+                    command: "restartc9vm"
+                }), 2000080, plugin);
+            }
             
             genprefs.on("edit", function(){
                 editUserSettings(); 
