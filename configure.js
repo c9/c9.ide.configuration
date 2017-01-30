@@ -55,7 +55,7 @@ define(function(require, exports, module) {
             if (css)
                 insertCss(css, false, cssSession);
                 
-            settings.on("user/config/styles.css",function(css){
+            settings.on("user/config/styles.css", function(css) {
                 cssSession.cleanUp();
                 insertCss(css, false, cssSession);
             });
@@ -64,7 +64,7 @@ define(function(require, exports, module) {
                 name: "restartc9",
                 group: "General",
                 bindKey: { mac: "Command-R", win: "Ctrl-R" },
-                exec: function(){
+                exec: function() {
                     location.reload();
                 }
             }, plugin);
@@ -94,7 +94,7 @@ define(function(require, exports, module) {
                 onclick: editUserSettings
             }), 400, plugin);
             menus.addItemByPath("Cloud9/Open Your Keymap", new ui.item({
-                onclick: function(){
+                onclick: function() {
                     kbprefs.editUserKeys();
                 }
             }), 600, plugin);
@@ -115,10 +115,10 @@ define(function(require, exports, module) {
                 }), 2000080, plugin);
             }
             
-            genprefs.on("edit", function(){
+            genprefs.on("edit", function() {
                 editUserSettings(); 
             });
-            prjprefs.on("edit", function(){
+            prjprefs.on("edit", function() {
                 editProjectSettings();
             });
             
@@ -175,39 +175,39 @@ define(function(require, exports, module) {
             
             // Load initial project settings from disk and match against latest from database
             var initWatcher, projectPath;
-            settings.on("read", function(){
+            settings.on("read", function() {
                 if (initWatcher) return;
                 initWatcher = true;
                 
                 // Keep project file consistent with changes on disk
-                watcher.on("change", function(e){
+                watcher.on("change", function(e) {
                     if (e.path == projectPath)
                         fs.readFile(e.path, readHandler);
                 });
-                watcher.on("delete", function(e){
+                watcher.on("delete", function(e) {
                     if (e.path == projectPath)
                         watcher.watch(projectPath);
                 });
-                watcher.on("failed", function(e){
+                watcher.on("failed", function(e) {
                     if (e.path == projectPath) {
-                        setTimeout(function(){
+                        setTimeout(function() {
                             watcher.watch(projectPath); // Retries once after 1s
                         });
                     }
                 });
                 
-                function readHandler(err, data){
+                function readHandler(err, data) {
                     if (err) return;
                     
                     settings.paths.project = projectPath;
                     
                     try { var json = JSON.parse(data); }
-                    catch(e) { return; }
+                    catch (e) { return; }
                     
                     settings.update("project", json);
                 }
                     
-                function updateFavPath(){
+                function updateFavPath() {
                     var mainPath = favs.getFavoritePaths()[0];
                     if (mainPath) 
                         mainPath = join(mainPath, ".c9/project.settings");
@@ -264,7 +264,7 @@ define(function(require, exports, module) {
             document.body.appendChild(style);
             
             // Cleanup
-            plugin.addOther(function(){
+            plugin.addOther(function() {
                 style.parentNode.removeChild(style);
             });
         }
@@ -284,27 +284,27 @@ define(function(require, exports, module) {
             });
         }
         
-        function editInitJs(){
+        function editInitJs() {
             var script = settings.get("user/config/init.js") || "";
             openTab("~/.c9/init.js", script, "javascript", 
                 "// You can access plugins via the 'services' global variable\n" + 
                 "/*global services, plugin*/\n");
         }
         
-        function editStylesCss(){
+        function editStylesCss() {
             // preferences.hide();
             var css = settings.get("user/config/styles.css") || "";
             openTab("~/.c9/styles.css", css, "css");
         }
         
-        function editProjectSettings(){
+        function editProjectSettings() {
             // preferences.hide();
             var value = JSON.stringify(settings.model.project, 0, "    ")
                 .replace(/"true"/g, "true")
                 .replace(/"false"/g, "false");
             openTab(settings.paths.project, value, "javascript");
         }
-        function editUserSettings(){
+        function editUserSettings() {
             // preferences.hide();
             var value = JSON.stringify(settings.model.user, 0, "    ")
                 .replace(/"true"/g, "true")
@@ -313,7 +313,7 @@ define(function(require, exports, module) {
         }
         
         function runInitJs(script) {
-            c9.once("ready", function(){
+            c9.once("ready", function() {
                 try {
                     var fn = new Function("services, plugin", script
                         + "\n//@ sourceURL=config/init.js");
@@ -322,9 +322,9 @@ define(function(require, exports, module) {
                     initPlugin.name = "initScript";
                     fn(services, initPlugin);
                 }
-                catch (e){
+                catch (e) {
                     console.error(e);
-                    setTimeout(function(){
+                    setTimeout(function() {
                         showError("Error Executing init.js: ", e.message);
                     }, 500);
                 }
@@ -353,8 +353,8 @@ define(function(require, exports, module) {
          * 
          **/
         plugin.freezePublicAPI({
-            get services(){ return services; },
-            set services(value){ services = value; },
+            get services() { return services; },
+            set services(value) { services = value; },
             
             /**
              * 
